@@ -1,5 +1,5 @@
-@REM v0.2.0
-@REM 2021-07-06
+@REM v0.3.0
+@REM 2021-09-13
 @REM https://lxvs.net/cloudconf
 
 @echo off
@@ -8,8 +8,6 @@
 set "batchname=%~nx0"
 set "batchfolder=%~dp0"
 if "%batchfolder:~-1%" == "\" set "batchfolder=%batchfolder:~0,-1%"
-
->nul chcp 65001
 
 set "dirTxt=cloudconf-rime-dir.txt"
 set "copyTxt=cloudconf-rime-list-copy.txt"
@@ -26,6 +24,14 @@ set "userdbTxt=cloudconf-rime-list-userdb.txt"
 @echo;
 
 pushd %~dp0
+
+set "userdbscrape=%cd%\userdbscrape.bat"
+if not exist "%userdbscrape%" (
+    >&2 echo %cRed%ERROR: could not find userdbscrape.bat%cSuf%
+    pause
+    popd
+    exit /b 1
+)
 
 if not defined rimeDir (
     if exist "%dirTxt%" (
@@ -123,14 +129,7 @@ set "confirmed="
 set /p "confirmed=%cYlw%If you have finished data synchronization, enter YES: %cSuf%"
 if /i not "%confirmed%" == "yes" goto confirmation_sync
 
-for /f %%i in (%userdbTxt%) do (
-    if exist "%rimeDir%\sync\%syncid%\%%i" (
-        if exist "%%i" del "%%i"
-        >"%%i" (
-            for /f "eol= delims=" %%I in (%rimeDir%\sync\%syncid%\%%i) do @echo %%I
-        )
-    ) else @echo %cYlw%WARNING: Could not find: %rimeDir%\sync\%syncid%\%%i%cSuf%
-)
+call "%userdbscrape%"
 
 :finish
 @echo %cGrn%Completed!%cSuf%
