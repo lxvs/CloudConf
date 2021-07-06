@@ -1,5 +1,5 @@
-@REM v0.3.1
-@REM 2021-09-22
+@REM v0.3.2
+@REM 2021-09-24
 @REM https://lxvs.net/cloudconf
 
 @echo off
@@ -63,6 +63,8 @@ if not defined rimeDir (
 
 if "%rimeDir:~-1%" == "\" set "rimeDir=%rimeDir:~0,-1%"
 
+if /i "%~1" == "syncuserdb" goto SyncUserDb_Prepare
+
 if exist "%copyTxt%" (
     for /f %%i in (%copyTxt%) do (
         if exist "%%i" (
@@ -81,6 +83,7 @@ if exist "%mklinkTxt%" (
     )
 )
 
+:SyncUserDb_Prepare
 if not exist "%userdbTxt%" goto finish
 set "userdbSize="
 for %%i in ("%userdbTxt%") do if not defined userdbSize set "userdbSize=%%~zi"

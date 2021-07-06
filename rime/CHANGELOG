@@ -1,3 +1,7 @@
+0.3.2 - 2021-09-24
+
+	* Add a standalone script to sync user DB only
+
 0.3.1 - 2021-09-22
 
 	* Rename userdbscrape.bat to _userdbscrape.bat
