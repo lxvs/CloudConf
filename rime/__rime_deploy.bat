@@ -1,9 +1,10 @@
-@REM v0.3.0
-@REM 2021-09-13
+@REM v0.3.1
+@REM 2021-09-22
 @REM https://lxvs.net/cloudconf
 
 @echo off
-@setlocal EnableExtensions EnableDelayedExpansion
+setlocal EnableExtensions EnableDelayedExpansion
+chcp 65001 1>nul
 
 set "batchname=%~nx0"
 set "batchfolder=%~dp0"
@@ -25,9 +26,9 @@ set "userdbTxt=cloudconf-rime-list-userdb.txt"
 
 pushd %~dp0
 
-set "userdbscrape=%cd%\userdbscrape.bat"
+set "userdbscrape=%cd%\_userdbscrape.bat"
 if not exist "%userdbscrape%" (
-    >&2 echo %cRed%ERROR: could not find userdbscrape.bat%cSuf%
+    >&2 echo %cRed%ERROR: could not find userdbscrape%cSuf%
     pause
     popd
     exit /b 1
