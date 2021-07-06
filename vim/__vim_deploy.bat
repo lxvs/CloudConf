@@ -1,5 +1,5 @@
-@REM v0.1.0
-@REM 2021-07-06
+@REM v0.1.1
+@REM 2021-10-08
 @REM https://lxvs.net/cloudconf
 
 @echo off
@@ -84,20 +84,19 @@ if not defined vimHome set "vimHome=%vimDir%\%vimVer%"
 
 for %%i in ("%vimrc%") do if exist "%%~fi" (
     if exist "%myvimrc%" del "%myvimrc%" || goto UacPrompt
-    mklink "%myvimrc%" "%%~fi" || goto UacPrompt
+    mklink "%myvimrc%" "%%~fi" 1>nul || goto UacPrompt
 )
 
 for /f %%i in ('dir /b /a-d *.vim 2^>nul') do (
     if exist "%vimHome%\%%~i" del "%vimHome%\%%~i" || goto UacPrompt
-    mklink "%vimHome%\%%~i" "%%~fi" || goto UacPrompt
+    mklink "%vimHome%\%%~i" "%%~fi" 1>nul || goto UacPrompt
 )
 
 for /f %%i in ('dir /b /ad-h 2^>nul') do if not "%%~i" == ".git" (
     pushd "%%~i"
-    @echo %cYlw%Entered directory %%~i%cSuf%
     for /f %%j in ('dir /b /a-d *.vim 2^>nul') do (
         if exist "%vimHome%\%%~i\%%~j" del "%vimHome%\%%~i\%%~j" || goto UacPrompt
-        mklink "%vimHome%\%%~i\%%~j" "%%~fj" || goto UacPrompt
+        mklink "%vimHome%\%%~i\%%~j" "%%~fj" 1>nul || goto UacPrompt
     )
     popd
 )
