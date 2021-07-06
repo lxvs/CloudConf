@@ -1,0 +1,13 @@
+CHANGELOG-*
+cloudconf-*.txt
+
+/everything/Everything.ini
+
+/rime/*.userdb.txt
+/rime/*.custom.yaml
+/rime/custom_phrase*.txt
+
+/sumatrapdf/SumatraPDF-settings.txt
+
+/vim/*vimrc
+/vim/**/*.vim

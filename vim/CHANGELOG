@@ -1,0 +1,14 @@
+0.1.0 - 2021-07-06
+
+	* Only ask for admin privilege if necessary.
+
+0.0.2 - 2021-06-13
+
+	* Suppress 'File Not Found' error of DIR cmd.
+	* Add 'completed' message.
+
+0.0.1 - 2021-06-13
+
+	* Make it a tool repo instead of a conf one.
+	* Use soft symbolic links instead of hard ones because hard ones
+	need to be at the same drive with targets.

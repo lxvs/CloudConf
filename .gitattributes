@@ -1,0 +1,7 @@
+*.bat	eol=crlf
+*.txt	eol=crlf
+*.vim	eol=lf
+.gitignore	export-ignore	eol=lf
+.gitattributes	export-ignore	eol=lf
+README.md	export-ignore	eol=lf
+/getversions.bat	export-ignore

@@ -1,0 +1,24 @@
+0.2.0 - 2021-07-06
+
+	* Only ask for admin privilege if necessary.
+	* Use soft symbolic links instead.
+	* Echo warnings to STDERR.
+
+0.1.1 - 2021-06-13
+
+	* Minor improvements on error prompt.
+
+0.1.0 - 2021-06-13
+
+	* Make it a script repo, instead of a configuration repo.
+
+0.0.2 - 2021-06-10
+
+	* What the userdb synchronization did was IMPORT instead of
+	MEARGING; fixed this.
+	* Add colors to outputs.
+	* Improved YES/NO confirmation prompts.
+
+0.0.1 - 2021-06-07
+
+	* Initial version.
