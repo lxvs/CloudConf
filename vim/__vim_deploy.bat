@@ -11,6 +11,7 @@
 
 set "dirTxt=cloudconf-vim-dir.txt"
 set "verTxt=cloudconf-vim-ver.txt"
+set "gitdirTxt=cloudconf-vim-gitdir.txt"
 
 @set "cRed=[91m"
 @set "cGrn=[92m"
@@ -78,13 +79,39 @@ if not defined vimVer (
     )
 )
 
+@if not defined gitDir (
+    if exist "%gitdirTxt%" (
+        for /f "usebackq delims=" %%i in ("%gitdirTxt%") do if not defined gitDir (
+            set "folderPath=%%~i"
+            call set "folderPath=!folderPath!"
+            for %%j in ("!folderPath!\") do (
+                if exist "%%~fj" (
+                    set "gitDir=%%~fj"
+                ) else (
+                    >&2 echo %cYlw%Warning: Invalid definition of gitDir: %%j%cSuf%
+                )
+            )
+        )
+    ) else if exist "%PROGRAMFILES%\Git" (
+        set "gitDir=%PROGRAMFILES%\Git"
+        @echo %cYlw%WARNING: gitDir not specified, using !gitDir!%cSuf%
+    ) else (
+        >&2 echo %cYlw%Warning: Skip vim in git. Please specify gitDir in file %gitdirTxt%%cSuf%
+    )
+)
+
 if not defined vimrc set "vimrc=_vimrc"
 if not defined myvimrc set "myvimrc=%vimDir%\%vimrc%"
 if not defined vimHome set "vimHome=%vimDir%\%vimVer%"
+if defined gitDir if not defined gitvimrc set "gitvimrc=%gitDir%\vimrc"
 
 for %%i in ("%vimrc%") do if exist "%%~fi" (
     if exist "%myvimrc%" del "%myvimrc%" || goto UacPrompt
     mklink "%myvimrc%" "%%~fi" 1>nul || goto UacPrompt
+    if defined gitvimrc (
+        if exist "%gitvimrc%" del "%gitvimrc%" || goto UacPrompt
+        mklink "%gitvimrc%" "%%~fi" 1>nul || goto UacPrompt
+    )
 )
 
 for /f %%i in ('dir /b /a-d *.vim 2^>nul') do (
