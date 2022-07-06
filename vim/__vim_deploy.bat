@@ -1,5 +1,5 @@
-@REM v0.1.1
-@REM 2021-10-08
+@REM v0.2.0
+@REM 2022-07-06
 @REM https://lxvs.net/cloudconf
 
 @echo off
