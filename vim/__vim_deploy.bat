@@ -32,18 +32,18 @@ pushd %~dp0
                 if exist "%%~fj" (
                     set "vimDir=%%~fj"
                 ) else (
-                    >&2 echo %cRed%ERROR: Invalid definition of vimDir: %%j%cSuf%
+                    >&2 echo %cRed%error: invalid definition of vimDir: `%%~j'%cSuf%
                     pause
                     popd
                     exit /b 1
                 )
             )
         )
-    ) else if exist "%PROGRAMFILES%\Vim" (
-        set "vimDir=%PROGRAMFILES%\Vim"
-        @echo %cYlw%WARNING: vimDir not specified, using !vimDir!%cSuf%
+    ) else if exist "%ProgramFiles%\Vim" (
+        set "vimDir=%ProgramFiles%\Vim"
+        @echo %cYlw%warning: vimDir not specified, using `!vimDir!'%cSuf%
     ) else (
-        >&2 echo %cRed%ERROR: Please specify vimDir in file %dirTxt%%cSuf%
+        >&2 echo %cRed%error: Please specify vimDir in file `%dirTxt%'%cSuf%
         pause
         popd
         exit /b 2
@@ -57,7 +57,7 @@ if not defined vimVer (
         for /f "usebackq delims=" %%i in ("%verTxt%") do if not defined vimVer (
             set "vimVer=%%~i"
             if not exist "%vimDir%\!vimVer!" (
-                >&2 echo %cRed%ERROR: Invalid definition of vimVer: %%i%cSuf%
+                >&2 echo %cRed%error: invalid definition of vimVer: `%%~i'%cSuf%
                 pause
                 popd
                 exit /b 3
@@ -66,11 +66,11 @@ if not defined vimVer (
     ) else (
         for /f %%i in ('dir /b /ad /o-d "%vimDir%" 2^>nul') do if not defined vimVer (
             set "vimVer=%%~i"
-            echo %cYlw%WARNING: vimVer not specified, using !vimVer!%cSuf%
+            echo %cYlw%warning: vimVer not specified, using `!vimVer!'%cSuf%
         )
         if not defined vimVer (
-            >&2 echo %cRed%ERROR: Please specify vimVer in file %verTxt%%cSuf%
-            >&2 echo %cRed%       For example: vim82%cSuf%
+            >&2 echo %cRed%error: Please specify vimVer in file `%verTxt%'%cSuf%
+            >&2 echo %cRed%       For example: vim90%cSuf%
             pause
             popd
             exit /b 4
