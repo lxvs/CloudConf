@@ -101,6 +101,18 @@ for /f %%i in ('dir /b /ad-h 2^>nul') do if not "%%~i" == ".git" (
     popd
 )
 
+if exist "pack\" (
+    if exist "%USERPROFILE%\vimfiles\pack\cloudconf" (
+        rmdir "%USERPROFILE%\vimfiles\pack\cloudconf" || (
+            pause
+            exit /b 1
+        )
+    ) else if not exist "%USERPROFILE%\vimfiles\pack\" (
+        mkdir "%USERPROFILE%\vimfiles\pack"
+    )
+    mklink /d "%USERPROFILE%\vimfiles\pack\cloudconf" "%cd%\pack" 1>nul || goto UacPrompt
+)
+
 @echo %cGrn%Completed.%cSuf%
 popd
 if /i "%~1" NEQ "nopause" pause
