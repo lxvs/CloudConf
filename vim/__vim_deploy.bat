@@ -11,7 +11,7 @@
 net session 1>nul 2>&1 || goto UacPrompt
 
 set "dirTxt=cloudconf-vim-dir.txt"
-set "verTxt=cloudconf-vim-ver.txt"
+set "gitDirTxt=cloudconf-vim-gitdir.txt"
 
 @set "cRed=[91m"
 @set "cGrn=[92m"
@@ -24,22 +24,9 @@ set "verTxt=cloudconf-vim-ver.txt"
 
 pushd %~dp0
 
-@if not defined vimDir (
+if not defined vimDir (
     if exist "%dirTxt%" (
-        for /f "usebackq delims=" %%i in ("%dirTxt%") do if not defined vimDir (
-            set "folderPath=%%~i"
-            call set "folderPath=!folderPath!"
-            for %%j in ("!folderPath!\") do (
-                if exist "%%~fj" (
-                    set "vimDir=%%~fj"
-                ) else (
-                    >&2 echo %cRed%error: invalid definition of vimDir: `%%~j'%cSuf%
-                    pause
-                    popd
-                    exit /b 1
-                )
-            )
-        )
+        call:GetPathFromText "%dirTxt%" vimDir
     ) else if exist "%ProgramFiles%\Vim" (
         set "vimDir=%ProgramFiles%\Vim"
         @echo %cYlw%warning: vimDir not specified, using `!vimDir!'%cSuf%
@@ -47,50 +34,67 @@ pushd %~dp0
         >&2 echo %cRed%error: Please specify vimDir in file `%dirTxt%'%cSuf%
         pause
         popd
-        exit /b 2
+        exit /b 1
+    )
+)
+
+if not defined gitDir (
+    if exist "%gitDirTxt%" (
+        call:GetPathFromText "%gitDirTxt%" gitDir
+    ) else if exist "%ProgramFiles%\Git" (
+        set "gitDir=%ProgramFiles%\Git"
+        @echo %cYlw%warning: gitDir not specified, using `!gitDir!'%cSuf%
+    ) else (
+        >&2 echo %cYlw%warning: gitDir not found, skipped%cSuf%
     )
 )
 
 if "%vimDir:~-1%" == "\" set "vimDir=%vimDir:~0,-1%"
 
+for /f %%i in ('dir /b /ad /o-d "%vimDir%" 2^>nul') do (
+    if not defined vimVer (set "vimVer=%%~i")
+)
 if not defined vimVer (
-    if exist "%verTxt%" (
-        for /f "usebackq delims=" %%i in ("%verTxt%") do if not defined vimVer (
-            set "vimVer=%%~i"
-            if not exist "%vimDir%\!vimVer!" (
-                >&2 echo %cRed%error: invalid definition of vimVer: `%%~i'%cSuf%
-                pause
-                popd
-                exit /b 3
-            )
-        )
-    ) else (
-        for /f %%i in ('dir /b /ad /o-d "%vimDir%" 2^>nul') do if not defined vimVer (
-            set "vimVer=%%~i"
-            echo %cYlw%warning: vimVer not specified, using `!vimVer!'%cSuf%
-        )
-        if not defined vimVer (
-            >&2 echo %cRed%error: Please specify vimVer in file `%verTxt%'%cSuf%
-            >&2 echo %cRed%       For example: vim90%cSuf%
-            pause
-            popd
-            exit /b 4
-        )
+    >&2 echo %cRed%error: failed to determin vim version%cSuf%
+    pause
+    popd
+    exit /b 1
+)
+
+if defined gitDir (
+    for /f %%i in ('dir /b /ad /o-d "%gitDir%\usr\share\vim" 2^>nul') do (
+        if not defined gitVimVer (set "gitVimVer=%%~i")
+    )
+    if not defined gitVimVer (
+        set gitDir=
+        >&2 echo %cYlw%warning: failed to determin vim version of Git, skipped%cSuf%
     )
 )
 
 if not defined vimrc set "vimrc=_vimrc"
-if not defined myvimrc set "myvimrc=%vimDir%\%vimrc%"
+if not defined myvimrc set "myvimrc=%vimDir%\_vimrc"
 if not defined vimHome set "vimHome=%vimDir%\%vimVer%"
+if defined gitDir (
+    if not defined gitvimrc set "gitvimrc=%gitDir%\etc\vimrc"
+    if not defined gitVomHome set "gitVimHome=%gitDir%\usr\share\vim\%gitVimVer%"
+)
 
 for %%i in ("%vimrc%") do if exist "%%~fi" (
     if exist "%myvimrc%" del "%myvimrc%"
     mklink "%myvimrc%" "%%~fi" 1>nul
+    if defined gitDir (
+        if exist "%gitvimrc%" del "%gitvimrc%"
+        mklink "%gitvimrc%" "%%~fi" 1>nul
+    )
 )
 
 for /f %%i in ('dir /b /a-d *.vim 2^>nul') do (
     if exist "%vimHome%\%%~i" del "%vimHome%\%%~i"
     mklink "%vimHome%\%%~i" "%%~fi" 1>nul
+    if defined gitDir (
+        if exist "%gitVimHome%\%%~i" del "%gitVimHome%\%%~i"
+        mklink "%gitVimHome%\%%~i" "%%~fi" 1>nul
+    )
 )
 
 for /f %%i in ('dir /b /ad-h 2^>nul') do if not "%%~i" == ".git" (
@@ -98,6 +102,10 @@ for /f %%i in ('dir /b /ad-h 2^>nul') do if not "%%~i" == ".git" (
     for /f %%j in ('dir /b /a-d *.vim 2^>nul') do (
         if exist "%vimHome%\%%~i\%%~j" del "%vimHome%\%%~i\%%~j"
         mklink "%vimHome%\%%~i\%%~j" "%%~fj" 1>nul
+        if defined gitDir (
+            if exist "%gitVimHome%\%%~i\%%~j" del "%gitVimHome%\%%~i\%%~j"
+            mklink "%gitVimHome%\%%~i\%%~j" "%%~fj" 1>nul
+        )
     )
     popd
 )
@@ -112,6 +120,17 @@ if exist "pack\" (
         mkdir "%USERPROFILE%\vimfiles\pack"
     )
     mklink /d "%USERPROFILE%\vimfiles\pack\cloudconf" "%cd%\pack" 1>nul
+    if defined gitDir (
+        if exist "%gitVimHome%\pack\cloudconf" (
+            rmdir "%gitVimHome%\pack\cloudconf" || (
+                pause
+                exit /b 1
+            )
+        ) else if not exist "%gitVimHome%\pack\" (
+            mkdir "%gitVimHome%\pack"
+        )
+        mklink /d "%gitVimHome%\pack\cloudconf" "%cd%\pack" 1>nul
+    )
 )
 
 @echo %cGrn%Completed.%cSuf%
@@ -135,3 +154,22 @@ echo UAC.ShellExecute "%batchname%", args, "%batchfolder%", "runas", 1
 @cscript //nologo "%TEMP%\UacPrompt.vbs"
 @del /f "%TEMP%\UacPrompt.vbs"
 @exit /b
+
+:GetPathFromText
+if "%~1" == "" exit /b 1
+if "%~2" == "" exit /b 2
+for /f "usebackq delims=" %%i in ("%~1") do if not defined %2 (
+    set "folderPath=%%~i"
+    call set "folderPath=!folderPath!"
+    for %%j in ("!folderPath!\") do (
+        if exist "%%~fj" (
+            set "%2=%%~fj"
+        ) else (
+            >&2 echo %cRed%error: Directory does not exist: `%%~j'%cSuf%
+            pause
+            popd
+            exit /b 1
+        )
+    )
+)
+exit /b
