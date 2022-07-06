@@ -8,6 +8,7 @@
 @set "batchname=%~nx0"
 @set "batchfolder=%~dp0"
 @if "%batchfolder:~-1%" == "\" set "batchfolder=%batchfolder:~0,-1%"
+net session 1>nul 2>&1 || goto UacPrompt
 
 set "dirTxt=cloudconf-vim-dir.txt"
 set "verTxt=cloudconf-vim-ver.txt"
@@ -83,20 +84,20 @@ if not defined myvimrc set "myvimrc=%vimDir%\%vimrc%"
 if not defined vimHome set "vimHome=%vimDir%\%vimVer%"
 
 for %%i in ("%vimrc%") do if exist "%%~fi" (
-    if exist "%myvimrc%" del "%myvimrc%" || goto UacPrompt
-    mklink "%myvimrc%" "%%~fi" 1>nul || goto UacPrompt
+    if exist "%myvimrc%" del "%myvimrc%"
+    mklink "%myvimrc%" "%%~fi" 1>nul
 )
 
 for /f %%i in ('dir /b /a-d *.vim 2^>nul') do (
-    if exist "%vimHome%\%%~i" del "%vimHome%\%%~i" || goto UacPrompt
-    mklink "%vimHome%\%%~i" "%%~fi" 1>nul || goto UacPrompt
+    if exist "%vimHome%\%%~i" del "%vimHome%\%%~i"
+    mklink "%vimHome%\%%~i" "%%~fi" 1>nul
 )
 
 for /f %%i in ('dir /b /ad-h 2^>nul') do if not "%%~i" == ".git" (
     pushd "%%~i"
     for /f %%j in ('dir /b /a-d *.vim 2^>nul') do (
-        if exist "%vimHome%\%%~i\%%~j" del "%vimHome%\%%~i\%%~j" || goto UacPrompt
-        mklink "%vimHome%\%%~i\%%~j" "%%~fj" 1>nul || goto UacPrompt
+        if exist "%vimHome%\%%~i\%%~j" del "%vimHome%\%%~i\%%~j"
+        mklink "%vimHome%\%%~i\%%~j" "%%~fj" 1>nul
     )
     popd
 )
@@ -110,7 +111,7 @@ if exist "pack\" (
     ) else if not exist "%USERPROFILE%\vimfiles\pack\" (
         mkdir "%USERPROFILE%\vimfiles\pack"
     )
-    mklink /d "%USERPROFILE%\vimfiles\pack\cloudconf" "%cd%\pack" 1>nul || goto UacPrompt
+    mklink /d "%USERPROFILE%\vimfiles\pack\cloudconf" "%cd%\pack" 1>nul
 )
 
 @echo %cGrn%Completed.%cSuf%
